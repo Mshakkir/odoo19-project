@@ -16,11 +16,11 @@ class PurchaseBookPreview(models.TransientModel):
     vendor = fields.Char(string='Vendor')
     invoice_ref = fields.Char(string='Invoice/Ref')
 
-    # Currency info
-    currency_name = fields.Char(string='Currency')
+    # Currency info (for detail view display)
+    currency_name = fields.Char(string='Orig. Currency')
     currency_rate = fields.Float(string='Rate', digits=(12, 6))
 
-    # Amount fields (invoice/foreign currency)
+    # Amount fields — all stored in company currency (SAR)
     gross = fields.Float(string='Gross', digits=(16, 2))
     trade_disc = fields.Float(string='Tr. Disc', digits=(16, 2))
     net_total = fields.Float(string='Net Total', digits=(16, 2))
@@ -30,17 +30,6 @@ class PurchaseBookPreview(models.TransientModel):
     adj_amount = fields.Float(string='Adj. Amt', digits=(16, 2))
     tax_amount = fields.Float(string='Tax Amt', digits=(16, 2))
     grand_total = fields.Float(string='Grand Total', digits=(16, 2))
-
-    # Amount fields in company currency (SAR)
-    gross_cc = fields.Float(string='Gross (SAR)', digits=(16, 2))
-    trade_disc_cc = fields.Float(string='Tr. Disc (SAR)', digits=(16, 2))
-    net_total_cc = fields.Float(string='Net Total (SAR)', digits=(16, 2))
-    add_disc_cc = fields.Float(string='Ad. Disc (SAR)', digits=(16, 2))
-    add_cost_cc = fields.Float(string='Ad. Cost (SAR)', digits=(16, 2))
-    round_off_cc = fields.Float(string='Round Off (SAR)', digits=(16, 2))
-    adj_amount_cc = fields.Float(string='Adj. Amt (SAR)', digits=(16, 2))
-    tax_amount_cc = fields.Float(string='Tax Amt (SAR)', digits=(16, 2))
-    grand_total_cc = fields.Float(string='Grand Total (SAR)', digits=(16, 2))
 
     # For subtotal rows
     is_subtotal = fields.Boolean(string='Is Subtotal', default=False)

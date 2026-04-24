@@ -71,10 +71,9 @@ class PurchaseBookWizard(models.TransientModel):
         # Clear existing preview lines
         self.preview_line_ids.unlink()
 
-        # Get report data
+        # Get report data (all amounts already in company currency)
         data = self._get_report_data()
 
-        # Create preview lines
         sequence = 1
         preview_vals = []
 
@@ -84,10 +83,6 @@ class PurchaseBookWizard(models.TransientModel):
                 'gross': 0, 'trade_disc': 0, 'net_total': 0,
                 'add_disc': 0, 'add_cost': 0, 'round_off': 0,
                 'adj_amount': 0, 'tax_amount': 0, 'grand_total': 0,
-                # company currency totals
-                'gross_cc': 0, 'trade_disc_cc': 0, 'net_total_cc': 0,
-                'add_disc_cc': 0, 'add_cost_cc': 0, 'round_off_cc': 0,
-                'adj_amount_cc': 0, 'tax_amount_cc': 0, 'grand_total_cc': 0,
             }
 
             for line in data:
@@ -98,24 +93,7 @@ class PurchaseBookWizard(models.TransientModel):
                         'date': current_date,
                         'is_subtotal': True,
                         'subtotal_label': 'Total:',
-                        'gross': date_totals['gross'],
-                        'trade_disc': date_totals['trade_disc'],
-                        'net_total': date_totals['net_total'],
-                        'add_disc': date_totals['add_disc'],
-                        'add_cost': date_totals['add_cost'],
-                        'round_off': date_totals['round_off'],
-                        'adj_amount': date_totals['adj_amount'],
-                        'tax_amount': date_totals['tax_amount'],
-                        'grand_total': date_totals['grand_total'],
-                        'gross_cc': date_totals['gross_cc'],
-                        'trade_disc_cc': date_totals['trade_disc_cc'],
-                        'net_total_cc': date_totals['net_total_cc'],
-                        'add_disc_cc': date_totals['add_disc_cc'],
-                        'add_cost_cc': date_totals['add_cost_cc'],
-                        'round_off_cc': date_totals['round_off_cc'],
-                        'adj_amount_cc': date_totals['adj_amount_cc'],
-                        'tax_amount_cc': date_totals['tax_amount_cc'],
-                        'grand_total_cc': date_totals['grand_total_cc'],
+                        **{k: date_totals[k] for k in date_totals},
                     })
                     sequence += 1
                     date_totals = {k: 0 for k in date_totals}
@@ -138,27 +116,13 @@ class PurchaseBookWizard(models.TransientModel):
                     'adj_amount': line.get('adj_amount', 0),
                     'tax_amount': line['tax_amount'],
                     'grand_total': line['grand_total'],
-                    'gross_cc': line.get('gross_cc', line['gross']),
-                    'trade_disc_cc': line.get('trade_disc_cc', line['trade_disc']),
-                    'net_total_cc': line.get('net_total_cc', line['net_total']),
-                    'add_disc_cc': line.get('add_disc_cc', 0),
-                    'add_cost_cc': line.get('add_cost_cc', 0),
-                    'round_off_cc': line.get('round_off_cc', 0),
-                    'adj_amount_cc': line.get('adj_amount_cc', 0),
-                    'tax_amount_cc': line.get('tax_amount_cc', line['tax_amount']),
-                    'grand_total_cc': line.get('grand_total_cc', line['grand_total']),
                     'is_subtotal': False,
                 })
                 sequence += 1
 
                 current_date = line['date']
-                for key in ['gross', 'trade_disc', 'net_total', 'add_disc', 'add_cost',
-                            'round_off', 'adj_amount', 'tax_amount', 'grand_total']:
+                for key in date_totals:
                     date_totals[key] += line.get(key, 0)
-                for key in ['gross_cc', 'trade_disc_cc', 'net_total_cc', 'add_disc_cc',
-                            'add_cost_cc', 'round_off_cc', 'adj_amount_cc', 'tax_amount_cc',
-                            'grand_total_cc']:
-                    date_totals[key] += line.get(key, line.get(key.replace('_cc', ''), 0))
 
             if current_date:
                 preview_vals.append({
@@ -167,27 +131,9 @@ class PurchaseBookWizard(models.TransientModel):
                     'date': current_date,
                     'is_subtotal': True,
                     'subtotal_label': 'Total:',
-                    'gross': date_totals['gross'],
-                    'trade_disc': date_totals['trade_disc'],
-                    'net_total': date_totals['net_total'],
-                    'add_disc': date_totals['add_disc'],
-                    'add_cost': date_totals['add_cost'],
-                    'round_off': date_totals['round_off'],
-                    'adj_amount': date_totals['adj_amount'],
-                    'tax_amount': date_totals['tax_amount'],
-                    'grand_total': date_totals['grand_total'],
-                    'gross_cc': date_totals['gross_cc'],
-                    'trade_disc_cc': date_totals['trade_disc_cc'],
-                    'net_total_cc': date_totals['net_total_cc'],
-                    'add_disc_cc': date_totals['add_disc_cc'],
-                    'add_cost_cc': date_totals['add_cost_cc'],
-                    'round_off_cc': date_totals['round_off_cc'],
-                    'adj_amount_cc': date_totals['adj_amount_cc'],
-                    'tax_amount_cc': date_totals['tax_amount_cc'],
-                    'grand_total_cc': date_totals['grand_total_cc'],
+                    **{k: date_totals[k] for k in date_totals},
                 })
         else:
-            # Short view
             for line in data:
                 preview_vals.append({
                     'wizard_id': self.id,
@@ -203,15 +149,6 @@ class PurchaseBookWizard(models.TransientModel):
                     'adj_amount': line.get('adj_amount', 0),
                     'tax_amount': line['tax_amount'],
                     'grand_total': line['grand_total'],
-                    'gross_cc': line.get('gross_cc', line['gross']),
-                    'trade_disc_cc': line.get('trade_disc_cc', line['trade_disc']),
-                    'net_total_cc': line.get('net_total_cc', line['net_total']),
-                    'add_disc_cc': line.get('add_disc_cc', 0),
-                    'add_cost_cc': line.get('add_cost_cc', 0),
-                    'round_off_cc': line.get('round_off_cc', 0),
-                    'adj_amount_cc': line.get('adj_amount_cc', 0),
-                    'tax_amount_cc': line.get('tax_amount_cc', line['tax_amount']),
-                    'grand_total_cc': line.get('grand_total_cc', line['grand_total']),
                     'is_subtotal': False,
                 })
                 sequence += 1
@@ -229,14 +166,12 @@ class PurchaseBookWizard(models.TransientModel):
                 'default_wizard_id': self.id,
                 'view_type': self.view_type,
                 'report_type': self.report_type,
-                'company_currency_name': self.company_id.currency_id.name,
             },
             'target': 'new',
         }
 
     def _get_report_data(self):
         self.ensure_one()
-
         if self.report_type == 'purchase':
             return self._get_purchase_data()
         elif self.report_type == 'return':
@@ -244,20 +179,17 @@ class PurchaseBookWizard(models.TransientModel):
         else:
             return self._get_combined_data()
 
-    def _apply_rate(self, amount, rate):
-        """Multiply amount by currency rate to get company currency value."""
+    def _to_cc(self, amount, rate):
+        """Convert amount to company currency using manual_currency_rate."""
         return amount * rate if rate else amount
 
     def _group_short(self, data):
-        """Group data by date (short view)."""
+        """Group data by date (short view). Amounts already in company currency."""
         grouped = defaultdict(lambda: {
             'date': None,
             'gross': 0.0, 'trade_disc': 0.0, 'net_total': 0.0,
             'add_disc': 0.0, 'add_cost': 0.0, 'round_off': 0.0,
             'adj_amount': 0.0, 'tax_amount': 0.0, 'grand_total': 0.0,
-            'gross_cc': 0.0, 'trade_disc_cc': 0.0, 'net_total_cc': 0.0,
-            'add_disc_cc': 0.0, 'add_cost_cc': 0.0, 'round_off_cc': 0.0,
-            'adj_amount_cc': 0.0, 'tax_amount_cc': 0.0, 'grand_total_cc': 0.0,
         })
 
         for line in data:
@@ -268,22 +200,18 @@ class PurchaseBookWizard(models.TransientModel):
             for f in ['gross', 'trade_disc', 'net_total', 'add_disc', 'add_cost',
                       'round_off', 'adj_amount', 'tax_amount', 'grand_total']:
                 g[f] += line.get(f, 0)
-                g[f + '_cc'] += line.get(f + '_cc', line.get(f, 0))
 
         result = list(grouped.values())
         result.sort(key=lambda x: x['date'])
         return result
 
     def _group_short_combined(self, data):
-        """Group combined data by date and type for short view."""
+        """Group combined data by date+type. Amounts already in company currency."""
         grouped = defaultdict(lambda: {
             'date': None, 'type': None,
             'gross': 0.0, 'trade_disc': 0.0, 'net_total': 0.0,
             'add_disc': 0.0, 'add_cost': 0.0, 'round_off': 0.0,
             'adj_amount': 0.0, 'tax_amount': 0.0, 'grand_total': 0.0,
-            'gross_cc': 0.0, 'trade_disc_cc': 0.0, 'net_total_cc': 0.0,
-            'add_disc_cc': 0.0, 'add_cost_cc': 0.0, 'round_off_cc': 0.0,
-            'adj_amount_cc': 0.0, 'tax_amount_cc': 0.0, 'grand_total_cc': 0.0,
         })
 
         for line in data:
@@ -295,7 +223,6 @@ class PurchaseBookWizard(models.TransientModel):
             for f in ['gross', 'trade_disc', 'net_total', 'add_disc', 'add_cost',
                       'round_off', 'adj_amount', 'tax_amount', 'grand_total']:
                 g[f] += line.get(f, 0)
-                g[f + '_cc'] += line.get(f + '_cc', line.get(f, 0))
 
         result = list(grouped.values())
         result.sort(key=lambda x: (x['date'], x['type']))
@@ -320,47 +247,39 @@ class PurchaseBookWizard(models.TransientModel):
         data = []
         for inv in invoices:
             inv_currency = inv.currency_id
-            # Use manual_currency_rate if set (foreign currency), else 1.0
             if inv_currency and inv_currency != company_currency:
                 rate = inv.manual_currency_rate or 1.0
+                currency_name = inv_currency.name
             else:
                 rate = 1.0
+                currency_name = ''
 
-            gross = sum(inv.invoice_line_ids.mapped('price_subtotal'))
-            trade_disc = 0
+            gross_raw = sum(inv.invoice_line_ids.mapped('price_subtotal'))
+            trade_disc_raw = 0
             for l in inv.invoice_line_ids:
                 if l.discount:
-                    trade_disc += (l.price_unit * l.quantity * l.discount) / 100
+                    trade_disc_raw += (l.price_unit * l.quantity * l.discount) / 100
 
-            net_total = gross - trade_disc
-            tax = sum((l.price_total - l.price_subtotal) for l in inv.invoice_line_ids)
-            grand = net_total + tax
+            net_total_raw = gross_raw - trade_disc_raw
+            tax_raw = sum((l.price_total - l.price_subtotal) for l in inv.invoice_line_ids)
+            grand_raw = net_total_raw + tax_raw
 
             data.append({
                 'date': inv.invoice_date,
                 'vendor': inv.partner_id.name,
                 'invoice_ref': inv.ref or inv.name,
-                'currency_name': inv_currency.name if inv_currency != company_currency else '',
+                'currency_name': currency_name,
                 'currency_rate': rate,
-                'gross': gross,
-                'trade_disc': trade_disc,
-                'net_total': net_total,
+                # Amounts converted to company currency (SAR)
+                'gross': self._to_cc(gross_raw, rate),
+                'trade_disc': self._to_cc(trade_disc_raw, rate),
+                'net_total': self._to_cc(net_total_raw, rate),
                 'add_disc': 0,
                 'add_cost': 0,
                 'round_off': 0,
                 'adj_amount': 0,
-                'tax_amount': tax,
-                'grand_total': grand,
-                # Company currency amounts
-                'gross_cc': self._apply_rate(gross, rate),
-                'trade_disc_cc': self._apply_rate(trade_disc, rate),
-                'net_total_cc': self._apply_rate(net_total, rate),
-                'add_disc_cc': 0,
-                'add_cost_cc': 0,
-                'round_off_cc': 0,
-                'adj_amount_cc': 0,
-                'tax_amount_cc': self._apply_rate(tax, rate),
-                'grand_total_cc': self._apply_rate(grand, rate),
+                'tax_amount': self._to_cc(tax_raw, rate),
+                'grand_total': self._to_cc(grand_raw, rate),
                 'type': 'Purchase',
             })
 
@@ -389,43 +308,36 @@ class PurchaseBookWizard(models.TransientModel):
             inv_currency = inv.currency_id
             if inv_currency and inv_currency != company_currency:
                 rate = inv.manual_currency_rate or 1.0
+                currency_name = inv_currency.name
             else:
                 rate = 1.0
+                currency_name = ''
 
-            gross = sum(inv.invoice_line_ids.mapped('price_subtotal'))
-            trade_disc = 0
+            gross_raw = sum(inv.invoice_line_ids.mapped('price_subtotal'))
+            trade_disc_raw = 0
             for l in inv.invoice_line_ids:
                 if l.discount:
-                    trade_disc += (l.price_unit * l.quantity * l.discount) / 100
+                    trade_disc_raw += (l.price_unit * l.quantity * l.discount) / 100
 
-            net_total = gross - trade_disc
-            tax = sum((l.price_total - l.price_subtotal) for l in inv.invoice_line_ids)
-            grand = net_total + tax
+            net_total_raw = gross_raw - trade_disc_raw
+            tax_raw = sum((l.price_total - l.price_subtotal) for l in inv.invoice_line_ids)
+            grand_raw = net_total_raw + tax_raw
 
             data.append({
                 'date': inv.invoice_date,
                 'vendor': inv.partner_id.name,
                 'invoice_ref': inv.ref or inv.name,
-                'currency_name': inv_currency.name if inv_currency != company_currency else '',
+                'currency_name': currency_name,
                 'currency_rate': rate,
-                'gross': -abs(gross),
-                'trade_disc': -abs(trade_disc),
-                'net_total': -abs(net_total),
+                'gross': -abs(self._to_cc(gross_raw, rate)),
+                'trade_disc': -abs(self._to_cc(trade_disc_raw, rate)),
+                'net_total': -abs(self._to_cc(net_total_raw, rate)),
                 'add_disc': 0,
                 'add_cost': 0,
                 'round_off': 0,
                 'adj_amount': 0,
-                'tax_amount': -abs(tax),
-                'grand_total': -abs(grand),
-                'gross_cc': -abs(self._apply_rate(gross, rate)),
-                'trade_disc_cc': -abs(self._apply_rate(trade_disc, rate)),
-                'net_total_cc': -abs(self._apply_rate(net_total, rate)),
-                'add_disc_cc': 0,
-                'add_cost_cc': 0,
-                'round_off_cc': 0,
-                'adj_amount_cc': 0,
-                'tax_amount_cc': -abs(self._apply_rate(tax, rate)),
-                'grand_total_cc': -abs(self._apply_rate(grand, rate)),
+                'tax_amount': -abs(self._to_cc(tax_raw, rate)),
+                'grand_total': -abs(self._to_cc(grand_raw, rate)),
                 'type': 'Return',
             })
 

@@ -16,13 +16,12 @@
                            column_invisible="context.get('view_type') == 'short'"/>
                     <field name="invoice_ref" string="Invoice/Ref"
                            column_invisible="context.get('view_type') == 'short'"/>
-                    <field name="currency_name" string="Currency"
-                           column_invisible="context.get('view_type') == 'short'"/>
+                    <field name="currency_name" string="Orig. Currency"
+                           column_invisible="context.get('view_type') == 'short'"
+                           optional="show"/>
                     <field name="currency_rate" string="Rate"
                            column_invisible="context.get('view_type') == 'short'"
                            optional="hide"/>
-
-                    <!-- Foreign currency amounts -->
                     <field name="gross" sum="Total Gross"/>
                     <field name="trade_disc" sum="Total Tr. Disc"/>
                     <field name="net_total" sum="Total Net"/>
@@ -32,18 +31,6 @@
                     <field name="adj_amount" sum="Total Adj." optional="hide"/>
                     <field name="tax_amount" sum="Total Tax"/>
                     <field name="grand_total" sum="Grand Total"/>
-
-                    <!-- Company currency (SAR) amounts -->
-                    <field name="gross_cc" string="Gross (SAR)" sum="Total Gross (SAR)" optional="show"/>
-                    <field name="trade_disc_cc" string="Tr. Disc (SAR)" sum="Total Tr. Disc (SAR)" optional="hide"/>
-                    <field name="net_total_cc" string="Net Total (SAR)" sum="Total Net (SAR)" optional="show"/>
-                    <field name="add_disc_cc" string="Ad. Disc (SAR)" sum="Total Ad. Disc (SAR)" optional="hide"/>
-                    <field name="add_cost_cc" string="Ad. Cost (SAR)" sum="Total Ad. Cost (SAR)" optional="hide"/>
-                    <field name="round_off_cc" string="Round Off (SAR)" sum="Total Round Off (SAR)" optional="hide"/>
-                    <field name="adj_amount_cc" string="Adj. Amt (SAR)" sum="Total Adj. (SAR)" optional="hide"/>
-                    <field name="tax_amount_cc" string="Tax Amt (SAR)" sum="Total Tax (SAR)" optional="show"/>
-                    <field name="grand_total_cc" string="Grand Total (SAR)" sum="Grand Total (SAR)" optional="show"/>
-
                     <field name="is_subtotal" column_invisible="1"/>
                     <field name="sequence" column_invisible="1"/>
                     <field name="wizard_id" column_invisible="1"/>

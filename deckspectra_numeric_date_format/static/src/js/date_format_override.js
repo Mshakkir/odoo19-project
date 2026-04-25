@@ -9,6 +9,18 @@ const formatters = registry.category("formatters");
 const originalDate = formatters.get("date");
 const originalDateTime = formatters.get("datetime");
 
+function formatToNumeric(value) {
+    if (!value) return "";
+    // value is a luxon DateTime object
+    const d = value.toFormat("dd/MM/yy");
+    return d;
+}
+
+function formatDateTimeToNumeric(value) {
+    if (!value) return "";
+    return value.toFormat("dd/MM/yy HH:mm:ss");
+}
+
 // Patch DateTimeField
 patch(DateTimeField, {
     defaultProps: {
@@ -37,18 +49,23 @@ patch(DateField.prototype, {
     },
 });
 
-// Let language format handle DD/MM/YYYY — just force numeric style
+// Override date formatter → DD/MM/YY
 formatters.add(
     "date",
-    (value, options = {}) =>
-        originalDate(value, { ...options, numeric: true }),
+    (value, options = {}) => {
+        if (!value) return "";
+        return formatToNumeric(value);
+    },
     { force: true }
 );
 
+// Override datetime formatter → DD/MM/YY HH:mm:ss
 formatters.add(
     "datetime",
-    (value, options = {}) =>
-        originalDateTime(value, { ...options, numeric: true }),
+    (value, options = {}) => {
+        if (!value) return "";
+        return formatDateTimeToNumeric(value);
+    },
     { force: true }
 );
 

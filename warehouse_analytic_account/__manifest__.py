@@ -21,7 +21,6 @@
         'sale',
         'account',
         'analytic',
-        'point_of_sale',
     ],
     'data': [
         'security/ir.model.access.csv',

@@ -211,11 +211,10 @@
                     </t>
                 </t>
 
-                <!-- Profit/Loss to report row only (level=1, not the Balance Sheet total itself) -->
+                <!-- Profit/Loss to report row (report-type row containing profit or loss in name) -->
                 <t t-set="bs_summary" t-value="[]"/>
                 <t t-foreach="get_account_lines" t-as="_a">
                     <t t-if="_a.get('type') == 'report'
-                             and int(_a.get('level', 0)) == 1
                              and ('profit' in (_a.get('name') or '').lower()
                                   or 'loss' in (_a.get('name') or '').lower())">
                         <t t-set="bs_summary" t-value="bs_summary + [_a]"/>
@@ -250,7 +249,13 @@
                 <t t-foreach="asset_lines" t-as="_l">
                     <t t-set="asset_total" t-value="asset_total + _l.get('balance', 0.0)"/>
                 </t>
-                <t t-set="show_liability_total" t-value="liability_section_total if liability_section_total != 0.0 else liability_total"/>
+                <!-- Profit/Loss amount to add to liability total -->
+                <t t-set="pnl_amount" t-value="0.0"/>
+                <t t-foreach="bs_summary" t-as="_s">
+                    <t t-set="pnl_amount" t-value="pnl_amount + _s.get('balance', 0.0)"/>
+                </t>
+
+                <t t-set="show_liability_total" t-value="(liability_section_total if liability_section_total != 0.0 else liability_total) + pnl_amount"/>
                 <t t-set="show_asset_total" t-value="asset_section_total if asset_section_total != 0.0 else asset_total"/>
 
                 <t t-set="bs_max" t-value="len(liability_lines) if len(liability_lines) >= len(asset_lines) else len(asset_lines)"/>
@@ -359,10 +364,11 @@
                             </tr>
                         </t>
 
-                        <!-- Summary rows -->
+                        <!-- Profit (Loss) to report — shown on liability side to balance the sheet -->
                         <t t-foreach="bs_summary" t-as="sl">
-                            <tr style="border-top:2px solid #4472C4; background-color:#EBF0FA; font-weight:bold;">
-                                <td colspan="2"><span t-esc="sl.get('name')"/></td>
+                            <tr style="font-weight:bold; background-color:#f5f5f5;">
+                                <td></td>
+                                <td><span t-esc="sl.get('name')"/></td>
                                 <td class="text-end">
                                     <span t-esc="sl.get('balance')"
                                           t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
@@ -376,13 +382,13 @@
                         <tr style="border-top:2px solid #4472C4; background-color:#D6E4F0; font-weight:bold;">
                             <td colspan="2">Total Liabilities &amp; Equity</td>
                             <td class="text-end">
-                                <span t-esc="liability_total"
+                                <span t-esc="show_liability_total"
                                       t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
                             </td>
                             <td style="border-left:2px solid #4472C4;"></td>
                             <td colspan="2">Total Assets</td>
                             <td class="text-end">
-                                <span t-esc="asset_total"
+                                <span t-esc="show_asset_total"
                                       t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
                             </td>
                         </tr>

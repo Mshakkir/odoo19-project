@@ -5,4 +5,5 @@ from . import stock_picking
 from . import res_users
 from . import sale_order
 from . import purchase_order
-
+from . import bank_reconcile
+from . import warehouse_analytic_utils

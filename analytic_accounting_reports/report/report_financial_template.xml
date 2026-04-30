@@ -2,9 +2,28 @@
 <odoo>
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
 
-        <!-- ── 1. Warehouse Selection line ── -->
-        <xpath expr="//div[@class='row mt32 mb32']" position="after">
-            <div class="row mb16" t-if="warehouse_display">
+        <!-- ── 0. Override report title (h2) — reduce size, center it, add company name above ── -->
+        <xpath expr="//h2" position="replace">
+            <div style="text-align:center; margin-bottom:8px; margin-top:0px;">
+                <!-- Company name: large, bold, dark maroon color, single line -->
+                <div style="font-size:22px; font-weight:bold; color:#6B1A1A; letter-spacing:1px; white-space:nowrap;">
+                    <span t-esc="res_company.name"/>
+                </div>
+                <!-- Report title: smaller than company name, centered -->
+                <div style="font-size:16px; font-weight:bold; color:#222222; margin-top:4px;">
+                    <span t-esc="data['account_report_id'][1]"/>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- ── 1. Reduce gap between header and date/target row ── -->
+        <xpath expr="//div[@class='row mt32 mb32']" position="attributes">
+            <attribute name="class">row mt8 mb16</attribute>
+        </xpath>
+
+        <!-- ── 2. Warehouse Selection line ── -->
+        <xpath expr="//div[@class='row mt8 mb16']" position="after">
+            <div class="row mb8" t-if="warehouse_display">
                 <div class="col-12">
                     <strong>Warehouse Selection: </strong>
                     <span t-esc="warehouse_display"/>

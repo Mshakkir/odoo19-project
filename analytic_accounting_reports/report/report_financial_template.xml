@@ -167,20 +167,7 @@
                             </tr>
                         </t>
 
-                        <!-- Grand totals -->
-                        <tr style="border-top:2px solid #4472C4; background-color:#D6E4F0; font-weight:bold;">
-                            <td>Total Income</td>
-                            <td class="text-end">
-                                <span t-esc="income_total"
-                                      t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                            </td>
-                            <td style="border-left:2px solid #4472C4;"></td>
-                            <td>Total Expenses</td>
-                            <td class="text-end">
-                                <span t-esc="expense_total"
-                                      t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                            </td>
-                        </tr>
+
                     </tbody>
                 </table>
             </t>

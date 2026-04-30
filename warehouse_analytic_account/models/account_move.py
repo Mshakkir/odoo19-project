@@ -1,69 +1,301 @@
+# # # -*- coding: utf-8 -*-
+# # import logging
+# # from odoo import api, models
+# #
+# # _logger = logging.getLogger(__name__)
+# #
+# # _WAREHOUSE_FIELDS = ('property_warehouse_id', 'default_warehouse_id', 'warehouse_id')
+# #
+# #
+# # def _get_user_warehouse(user):
+# #     for fname in _WAREHOUSE_FIELDS:
+# #         if fname in user._fields:
+# #             return getattr(user, fname, False)
+# #     return False
+# #
+# #
+# # class AccountMove(models.Model):
+# #     _inherit = 'account.move'
+# #
+# #     def _get_warehouse_analytic_account(self):
+# #         wh = _get_user_warehouse(self.env.user)
+# #         if wh and wh.analytic_account_id:
+# #             return wh.analytic_account_id
+# #         return False
+# #
+# #     def _apply_warehouse_analytic_to_lines(self):
+# #         """
+# #         Stamp warehouse analytic on ALL invoice lines AND journal entry lines
+# #         so every entry is fully tagged for branch-level reporting.
+# #         Covers vendor bills, customer invoices, credit notes and refunds.
+# #         """
+# #         analytic_account = self._get_warehouse_analytic_account()
+# #         if not analytic_account:
+# #             return
+# #
+# #         key = str(analytic_account.id)
+# #         for move in self:
+# #             if move.move_type not in (
+# #                 'in_invoice', 'in_refund', 'out_invoice', 'out_refund'
+# #             ):
+# #                 continue
+# #
+# #             # Apply to invoice lines (visible in Invoice Lines tab)
+# #             for line in move.invoice_line_ids.filtered(
+# #                 lambda l: l.account_id and not l.display_type
+# #             ):
+# #                 existing = line.analytic_distribution or {}
+# #                 if key not in existing:
+# #                     new_dist = dict(existing)
+# #                     new_dist[key] = 100.0
+# #                     line.analytic_distribution = new_dist
+# #
+# #             # Also apply to ALL journal entry lines (visible in Journal Items tab)
+# #             # This includes receivable, payable, tax lines — for full branch visibility
+# #             for line in move.line_ids.filtered(
+# #                 lambda l: l.account_id and not l.display_type
+# #             ):
+# #                 existing = line.analytic_distribution or {}
+# #                 if key not in existing:
+# #                     new_dist = dict(existing)
+# #                     new_dist[key] = 100.0
+# #                     line.analytic_distribution = new_dist
+# #                     _logger.debug(
+# #                         'Warehouse analytic %s applied to journal line %s (%s)',
+# #                         analytic_account.name, line.id, line.account_id.code,
+# #                     )
+# #
+# #     @api.model_create_multi
+# #     def create(self, vals_list):
+# #         moves = super().create(vals_list)
+# #         moves._apply_warehouse_analytic_to_lines()
+# #         return moves
+# #
+# #     def write(self, vals):
+# #         result = super().write(vals)
+# #         if any(k in vals for k in ('invoice_line_ids', 'line_ids', 'state', 'move_type')):
+# #             self._apply_warehouse_analytic_to_lines()
+# #         return result
+# #
+# #     def action_post(self):
+# #         self._apply_warehouse_analytic_to_lines()
+# #         return super().action_post()
+# #
+# #
+# # class AccountMoveLine(models.Model):
+# #     _inherit = 'account.move.line'
+# #
+# #     @api.model_create_multi
+# #     def create(self, vals_list):
+# #         lines = super().create(vals_list)
+# #         lines.move_id._apply_warehouse_analytic_to_lines()
+# #         return lines
+# #
+# #     def write(self, vals):
+# #         result = super().write(vals)
+# #         if any(k in vals for k in ('account_id', 'product_id')):
+# #             self.move_id._apply_warehouse_analytic_to_lines()
+# #         return result
+# #
+# #     @api.onchange('product_id', 'account_id')
+# #     def _onchange_product_apply_warehouse_analytic(self):
+# #         if not self.move_id or self.move_id.move_type not in (
+# #             'in_invoice', 'in_refund', 'out_invoice', 'out_refund'
+# #         ):
+# #             return
+# #         wh = _get_user_warehouse(self.env.user)
+# #         if not wh or not wh.analytic_account_id:
+# #             return
+# #         key = str(wh.analytic_account_id.id)
+# #         existing = self.analytic_distribution or {}
+# #         if key not in existing:
+# #             new_dist = dict(existing)
+# #             new_dist[key] = 100.0
+# #             self.analytic_distribution = new_dist
+# # -*- coding: utf-8 -*-
+# import logging
+# from odoo import api, models
+#
+# _logger = logging.getLogger(__name__)
+#
+# _WAREHOUSE_FIELDS = ('property_warehouse_id', 'default_warehouse_id', 'warehouse_id')
+#
+# # move_type values that represent invoices/bills/refunds AND plain journal entries
+# # 'entry' covers: customer payments, vendor payments, bank statements, misc entries
+# _HANDLED_MOVE_TYPES = (
+#     'in_invoice', 'in_refund',
+#     'out_invoice', 'out_refund',
+#     'entry',
+# )
+#
+#
+# def _get_user_warehouse(user):
+#     for fname in _WAREHOUSE_FIELDS:
+#         if fname in user._fields:
+#             return getattr(user, fname, False)
+#     return False
+#
+#
+# class AccountMove(models.Model):
+#     _inherit = 'account.move'
+#
+#     def _get_warehouse_analytic_account(self):
+#         wh = _get_user_warehouse(self.env.user)
+#         if wh and wh.analytic_account_id:
+#             return wh.analytic_account_id
+#         return False
+#
+#     def _apply_warehouse_analytic_to_lines(self):
+#         """
+#         Stamp warehouse analytic on ALL invoice lines AND journal entry lines
+#         so every entry is fully tagged for branch-level reporting.
+#         Covers:
+#           - Vendor bills, customer invoices, credit notes and refunds
+#           - Customer payments, vendor payments (move_type = 'entry')
+#           - Any other plain journal entry
+#         """
+#         analytic_account = self._get_warehouse_analytic_account()
+#         if not analytic_account:
+#             return
+#
+#         key = str(analytic_account.id)
+#         for move in self:
+#             if move.move_type not in _HANDLED_MOVE_TYPES:
+#                 continue
+#
+#             # Apply to invoice lines (visible in Invoice Lines tab for invoices/bills)
+#             for line in move.invoice_line_ids.filtered(
+#                 lambda l: l.account_id and not l.display_type
+#             ):
+#                 existing = line.analytic_distribution or {}
+#                 if key not in existing:
+#                     new_dist = dict(existing)
+#                     new_dist[key] = 100.0
+#                     line.analytic_distribution = new_dist
+#
+#             # Apply to ALL journal entry lines (visible in Journal Items tab)
+#             # This includes receivable, payable, outstanding receipts,
+#             # tax lines, cash/bank lines — for full branch visibility.
+#             # This also covers payment entries (move_type='entry') like
+#             # PCSCHL/xxxx which have no invoice_line_ids.
+#             for line in move.line_ids.filtered(
+#                 lambda l: l.account_id and not l.display_type
+#             ):
+#                 existing = line.analytic_distribution or {}
+#                 if key not in existing:
+#                     new_dist = dict(existing)
+#                     new_dist[key] = 100.0
+#                     line.analytic_distribution = new_dist
+#                     _logger.debug(
+#                         'Warehouse analytic %s applied to journal line %s (%s) on move %s',
+#                         analytic_account.name, line.id,
+#                         line.account_id.code, move.name,
+#                     )
+#
+#     @api.model_create_multi
+#     def create(self, vals_list):
+#         moves = super().create(vals_list)
+#         moves._apply_warehouse_analytic_to_lines()
+#         return moves
+#
+#     def write(self, vals):
+#         result = super().write(vals)
+#         if any(k in vals for k in ('invoice_line_ids', 'line_ids', 'state', 'move_type')):
+#             self._apply_warehouse_analytic_to_lines()
+#         return result
+#
+#     def action_post(self):
+#         self._apply_warehouse_analytic_to_lines()
+#         return super().action_post()
+#
+#
+# class AccountMoveLine(models.Model):
+#     _inherit = 'account.move.line'
+#
+#     @api.model_create_multi
+#     def create(self, vals_list):
+#         lines = super().create(vals_list)
+#         lines.move_id._apply_warehouse_analytic_to_lines()
+#         return lines
+#
+#     def write(self, vals):
+#         result = super().write(vals)
+#         if any(k in vals for k in ('account_id', 'product_id')):
+#             self.move_id._apply_warehouse_analytic_to_lines()
+#         return result
+#
+#     @api.onchange('product_id', 'account_id')
+#     def _onchange_product_apply_warehouse_analytic(self):
+#         # Also applies to 'entry' type moves (payments) now
+#         if not self.move_id or self.move_id.move_type not in _HANDLED_MOVE_TYPES:
+#             return
+#         wh = _get_user_warehouse(self.env.user)
+#         if not wh or not wh.analytic_account_id:
+#             return
+#         key = str(wh.analytic_account_id.id)
+#         existing = self.analytic_distribution or {}
+#         if key not in existing:
+#             new_dist = dict(existing)
+#             new_dist[key] = 100.0
+#             self.analytic_distribution = new_dist
+#
+#
+# class AccountPayment(models.Model):
+#     _inherit = 'account.payment'
+#
+#     def action_post(self):
+#         """
+#         After a direct customer/vendor payment is posted, apply the warehouse
+#         analytic account to its underlying journal entry (move_type='entry').
+#         This covers direct payments like PCSCHL/xxxx, PBILL/xxxx, etc.
+#         """
+#         result = super().action_post()
+#         for payment in self:
+#             move = payment.move_id
+#             if move:
+#                 move._apply_warehouse_analytic_to_lines()
+#         return result
 # -*- coding: utf-8 -*-
-import logging
 from odoo import api, models
+from .warehouse_analytic_utils import (
+    get_user_warehouse,
+    get_analytic_from_move,
+    stamp_analytic_on_move_lines,
+)
 
-_logger = logging.getLogger(__name__)
-
-_WAREHOUSE_FIELDS = ('property_warehouse_id', 'default_warehouse_id', 'warehouse_id')
-
-
-def _get_user_warehouse(user):
-    for fname in _WAREHOUSE_FIELDS:
-        if fname in user._fields:
-            return getattr(user, fname, False)
-    return False
+_HANDLED_MOVE_TYPES = (
+    'in_invoice', 'in_refund',
+    'out_invoice', 'out_refund',
+    'entry',
+)
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def _get_warehouse_analytic_account(self):
-        wh = _get_user_warehouse(self.env.user)
-        if wh and wh.analytic_account_id:
-            return wh.analytic_account_id
-        return False
-
     def _apply_warehouse_analytic_to_lines(self):
         """
-        Stamp warehouse analytic on ALL invoice lines AND journal entry lines
-        so every entry is fully tagged for branch-level reporting.
-        Covers vendor bills, customer invoices, credit notes and refunds.
-        """
-        analytic_account = self._get_warehouse_analytic_account()
-        if not analytic_account:
-            return
+        Stamp warehouse analytic on all journal lines for branch reporting.
+        Each move resolves its own analytic via get_analytic_from_move()
+        so the correct warehouse is used regardless of who calls this method.
 
-        key = str(analytic_account.id)
+        NOTE: Bank statement line entries (BNK1/xxxx) are intentionally skipped
+        here — they are handled by reconcile.py with proper journal/session/
+        payment-based resolution to avoid cross-branch contamination.
+        """
         for move in self:
-            if move.move_type not in (
-                'in_invoice', 'in_refund', 'out_invoice', 'out_refund'
-            ):
+            if move.move_type not in _HANDLED_MOVE_TYPES:
                 continue
 
-            # Apply to invoice lines (visible in Invoice Lines tab)
-            for line in move.invoice_line_ids.filtered(
-                lambda l: l.account_id and not l.display_type
-            ):
-                existing = line.analytic_distribution or {}
-                if key not in existing:
-                    new_dist = dict(existing)
-                    new_dist[key] = 100.0
-                    line.analytic_distribution = new_dist
+            # Skip bank statement entries — reconcile.py owns these
+            if getattr(move, 'statement_line_id', False):
+                continue
 
-            # Also apply to ALL journal entry lines (visible in Journal Items tab)
-            # This includes receivable, payable, tax lines — for full branch visibility
-            for line in move.line_ids.filtered(
-                lambda l: l.account_id and not l.display_type
-            ):
-                existing = line.analytic_distribution or {}
-                if key not in existing:
-                    new_dist = dict(existing)
-                    new_dist[key] = 100.0
-                    line.analytic_distribution = new_dist
-                    _logger.debug(
-                        'Warehouse analytic %s applied to journal line %s (%s)',
-                        analytic_account.name, line.id, line.account_id.code,
-                    )
+            analytic = get_analytic_from_move(move)
+            if not analytic:
+                continue
+
+            stamp_analytic_on_move_lines(move, analytic)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -79,7 +311,10 @@ class AccountMove(models.Model):
 
     def action_post(self):
         self._apply_warehouse_analytic_to_lines()
-        return super().action_post()
+        result = super().action_post()
+        # Apply again — Odoo can rebuild lines during post
+        self._apply_warehouse_analytic_to_lines()
+        return result
 
 
 class AccountMoveLine(models.Model):
@@ -99,11 +334,9 @@ class AccountMoveLine(models.Model):
 
     @api.onchange('product_id', 'account_id')
     def _onchange_product_apply_warehouse_analytic(self):
-        if not self.move_id or self.move_id.move_type not in (
-            'in_invoice', 'in_refund', 'out_invoice', 'out_refund'
-        ):
+        if not self.move_id or self.move_id.move_type not in _HANDLED_MOVE_TYPES:
             return
-        wh = _get_user_warehouse(self.env.user)
+        wh = get_user_warehouse(self.env.user)
         if not wh or not wh.analytic_account_id:
             return
         key = str(wh.analytic_account_id.id)
@@ -112,3 +345,33 @@ class AccountMoveLine(models.Model):
             new_dist = dict(existing)
             new_dist[key] = 100.0
             self.analytic_distribution = new_dist
+
+
+class AccountPayment(models.Model):
+    _inherit = 'account.payment'
+
+    def _synchronize_to_moves(self, changed_fields):
+        """
+        Core Odoo hook — called every time payment fields change and
+        move lines are rebuilt. Covers all payment posting flows.
+        """
+        result = super()._synchronize_to_moves(changed_fields)
+        for payment in self:
+            if payment.move_id:
+                payment.move_id._apply_warehouse_analytic_to_lines()
+        return result
+
+    def action_post(self):
+        result = super().action_post()
+        for payment in self:
+            if payment.move_id:
+                payment.move_id._apply_warehouse_analytic_to_lines()
+        return result
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        payments = super().create(vals_list)
+        for payment in payments:
+            if payment.move_id:
+                payment.move_id._apply_warehouse_analytic_to_lines()
+        return payments

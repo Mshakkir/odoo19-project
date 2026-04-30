@@ -2,10 +2,20 @@
 <odoo>
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
 
-        <!-- ── 0. Override report title (h2) — reduce size, center it, add company name above ── -->
+        <!-- ── 0a. Inject CSS to hide the default internal_layout header band ── -->
+        <xpath expr="//t[@t-call='web.internal_layout']" position="inside">
+            <style>
+                /* Hide the default header (company name top bar) from web.internal_layout */
+                .header { display: none !important; }
+                /* Remove the large top margin the layout adds for the hidden header */
+                .page { margin-top: 0 !important; padding-top: 0 !important; }
+            </style>
+        </xpath>
+
+        <!-- ── 0b. Override report title (h2) — company name large + report title smaller, centered ── -->
         <xpath expr="//h2" position="replace">
-            <div style="text-align:center; margin-bottom:8px; margin-top:0px;">
-                <!-- Company name: large, bold, dark maroon color, single line -->
+            <div style="text-align:center; margin-bottom:8px; margin-top:16px;">
+                <!-- Company name: large, bold, dark maroon, single line -->
                 <div style="font-size:22px; font-weight:bold; color:#6B1A1A; letter-spacing:1px; white-space:nowrap;">
                     <span t-esc="res_company.name"/>
                 </div>

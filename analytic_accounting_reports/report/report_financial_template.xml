@@ -1,482 +1,393 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--
-        Full override of the report_financial template.
-        Replaces web.internal_layout with web.html_container
-        so the default company-name header band is completely gone.
-    -->
-    <template id="report_financial" inherit_id="accounting_pdf_reports.report_financial" primary="True">
-        <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="o">
-                <div class="page" style="padding:20px 30px;">
+    <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
 
-                    <!-- ═══════════════════════════════════════
-                         CUSTOM HEADER: Company name + Report title
-                         ═══════════════════════════════════════ -->
-                    <div style="text-align:center; margin-bottom:12px;">
-                        <div style="font-size:22px; font-weight:bold; color:#6B1A1A;
-                                    letter-spacing:1px; white-space:nowrap;">
-                            <span t-esc="res_company.name"/>
-                        </div>
-                        <div style="font-size:15px; font-weight:bold; color:#333333; margin-top:4px;">
-                            <span t-esc="data['account_report_id'][1]"/>
-                        </div>
+        <!--
+            Replace the ENTIRE <t t-call="web.internal_layout"> block.
+            This is the only reliable way to remove the default company-name
+            header band — web.internal_layout injects it via wkhtmltopdf's
+            header frame which cannot be hidden with CSS from inside the page.
+        -->
+        <xpath expr="//t[@t-call='web.internal_layout']" position="replace">
+            <div class="page" style="padding:20px 30px; font-family: sans-serif;">
+
+                <!-- ═══════════════════════════════════
+                     CUSTOM HEADER
+                     ═══════════════════════════════════ -->
+                <div style="text-align:center; margin-bottom:10px;">
+                    <div style="font-size:22px; font-weight:bold; color:#6B1A1A;
+                                letter-spacing:1px; white-space:nowrap;">
+                        <span t-esc="res_company.name"/>
                     </div>
-
-                    <!-- ═══════════════════════════════════════
-                         Target Moves + Date range
-                         ═══════════════════════════════════════ -->
-                    <div class="row mt8 mb8">
-                        <div class="col-4">
-                            <strong>Target Moves:</strong>
-                            <p>
-                                <span t-if="data['target_move'] == 'all'">All Entries</span>
-                                <span t-if="data['target_move'] == 'posted'">All Posted Entries</span>
-                            </p>
-                        </div>
-                        <div class="col-4">
-                            <p>
-                                <t t-if="data['date_from']">
-                                    <strong>Date from :</strong>
-                                    <span t-esc="data['date_from']"/><br/>
-                                </t>
-                                <t t-if="data['date_to']">
-                                    <strong>Date to :</strong>
-                                    <span t-esc="data['date_to']"/>
-                                </t>
-                            </p>
-                        </div>
+                    <div style="font-size:15px; font-weight:bold; color:#333333; margin-top:4px;">
+                        <span t-esc="data['account_report_id'][1]"/>
                     </div>
+                </div>
 
-                    <!-- Warehouse Selection -->
-                    <div class="row mb8" t-if="warehouse_display">
-                        <div class="col-12">
-                            <strong>Warehouse Selection: </strong>
-                            <span t-esc="warehouse_display"/>
-                        </div>
+                <!-- ═══════════════════════════════════
+                     Target Moves + Dates
+                     ═══════════════════════════════════ -->
+                <div class="row mt8 mb8">
+                    <div class="col-4">
+                        <strong>Target Moves:</strong>
+                        <p>
+                            <span t-if="data['target_move'] == 'all'">All Entries</span>
+                            <span t-if="data['target_move'] == 'posted'">All Posted Entries</span>
+                        </p>
                     </div>
-
-                    <!-- ═══════════════════════════════════════
-                         TABLE: Debit / Credit view
-                         ═══════════════════════════════════════ -->
-                    <table class="table table-sm table-reports" t-if="data['debit_credit'] == 1">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th class="text-end">Debit</th>
-                                <th class="text-end">Credit</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr t-foreach="get_account_lines" t-as="a">
-                                <t t-if="a['level'] != 0">
-                                    <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: normal;'"/></t>
-                                    <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: bold;'"/></t>
-                                    <td>
-                                        <span style="color:white;" t-esc="'..' * int(a.get('level', 0))"/>
-                                        <span t-att-style="style" t-esc="a.get('name')"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-att-style="style" t-esc="a.get('debit')"
-                                              t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-att-style="style" t-esc="a.get('credit')"
-                                              t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-att-style="style" t-esc="a.get('balance')"
-                                              t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                    </td>
-                                </t>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- ═══════════════════════════════════════
-                         TABLE: Comparison filter view
-                         ═══════════════════════════════════════ -->
-                    <table class="table table-sm table-reports"
-                           t-if="data['enable_filter'] == 1 and not data['debit_credit']">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th class="text-end">Amount</th>
-                                <th class="text-end"><span t-esc="data['label_filter']"/></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr t-foreach="get_account_lines" t-as="a">
-                                <t t-if="a['level'] != 0">
-                                    <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: normal;'"/></t>
-                                    <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: bold;'"/></t>
-                                    <td>
-                                        <span style="color:white;" t-esc="'..'"/>
-                                        <span t-att-style="style" t-esc="a.get('name')"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-att-style="style" t-esc="a.get('balance')"
-                                              t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-att-style="style" t-esc="a.get('balance_cmp')"
-                                              t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                    </td>
-                                </t>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- ═══════════════════════════════════════
-                         TWO-COLUMN TABLES
-                         ═══════════════════════════════════════ -->
-                    <t t-if="not data['enable_filter'] and not data['debit_credit']">
-
-                        <!-- ────────────────────────────────────
-                             PROFIT AND LOSS
-                             ──────────────────────────────────── -->
-                        <t t-if="'loss' in data['account_report_id'][1].lower() or 'profit' in data['account_report_id'][1].lower()">
-
-                            <t t-set="income_lines" t-value="[]"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('account_type') in ('income','income_other','other_income')
-                                         or (_a.get('type') == 'report'
-                                             and ('income' in (_a.get('name') or '').lower()
-                                                  or 'revenue' in (_a.get('name') or '').lower()
-                                                  or 'sales' in (_a.get('name') or '').lower()))">
-                                    <t t-set="income_lines" t-value="income_lines + [_a]"/>
-                                </t>
+                    <div class="col-4">
+                        <p>
+                            <t t-if="data['date_from']">
+                                <strong>Date from :</strong>
+                                <span t-esc="data['date_from']"/><br/>
                             </t>
-
-                            <t t-set="expense_lines" t-value="[]"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('account_type') in ('expense','other_expense','depreciation',
-                                                                     'expense_direct_cost','expense_cost_of_revenue')
-                                         or (_a.get('type') == 'report'
-                                             and ('expense' in (_a.get('name') or '').lower()
-                                                  or 'cost' in (_a.get('name') or '').lower()
-                                                  or 'depreciation' in (_a.get('name') or '').lower()))">
-                                    <t t-set="expense_lines" t-value="expense_lines + [_a]"/>
-                                </t>
+                            <t t-if="data['date_to']">
+                                <strong>Date to :</strong>
+                                <span t-esc="data['date_to']"/>
                             </t>
+                        </p>
+                    </div>
+                </div>
 
-                            <t t-set="summary_lines" t-value="[]"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('type') == 'report'
-                                         and int(_a.get('level', 0)) &lt;= 2
-                                         and 'income' not in (_a.get('name') or '').lower()
-                                         and 'revenue' not in (_a.get('name') or '').lower()
-                                         and 'sales' not in (_a.get('name') or '').lower()
-                                         and 'expense' not in (_a.get('name') or '').lower()
-                                         and 'cost' not in (_a.get('name') or '').lower()
-                                         and 'depreciation' not in (_a.get('name') or '').lower()">
-                                    <t t-set="summary_lines" t-value="summary_lines + [_a]"/>
-                                </t>
+                <!-- Warehouse Selection -->
+                <div class="row mb8" t-if="warehouse_display">
+                    <div class="col-12">
+                        <strong>Warehouse Selection: </strong>
+                        <span t-esc="warehouse_display"/>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════
+                     Debit/Credit table
+                     ═══════════════════════════════════ -->
+                <table class="table table-sm table-reports" t-if="data['debit_credit'] == 1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-end">Debit</th>
+                            <th class="text-end">Credit</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="get_account_lines" t-as="a">
+                            <t t-if="a['level'] != 0">
+                                <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight:normal;'"/></t>
+                                <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight:bold;'"/></t>
+                                <td><span style="color:white;" t-esc="'..' * int(a.get('level',0))"/><span t-att-style="style" t-esc="a.get('name')"/></td>
+                                <td class="text-end"><span t-att-style="style" t-esc="a.get('debit')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                <td class="text-end"><span t-att-style="style" t-esc="a.get('credit')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                <td class="text-end"><span t-att-style="style" t-esc="a.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
                             </t>
+                        </tr>
+                    </tbody>
+                </table>
 
-                            <t t-set="pnl_max" t-value="len(income_lines) if len(income_lines) >= len(expense_lines) else len(expense_lines)"/>
+                <!-- ═══════════════════════════════════
+                     Comparison filter table
+                     ═══════════════════════════════════ -->
+                <table class="table table-sm table-reports"
+                       t-if="data['enable_filter'] == 1 and not data['debit_credit']">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-end"><span t-esc="data['label_filter']"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="get_account_lines" t-as="a">
+                            <t t-if="a['level'] != 0">
+                                <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight:normal;'"/></t>
+                                <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight:bold;'"/></t>
+                                <td><span style="color:white;" t-esc="'..'"/><span t-att-style="style" t-esc="a.get('name')"/></td>
+                                <td class="text-end"><span t-att-style="style" t-esc="a.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                <td class="text-end"><span t-att-style="style" t-esc="a.get('balance_cmp')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                            </t>
+                        </tr>
+                    </tbody>
+                </table>
 
-                            <table class="table table-sm table-reports"
-                                   style="font-size:11px; table-layout:fixed; width:100%;">
-                                <colgroup>
-                                    <col style="width:37%;"/>
-                                    <col style="width:13%;"/>
-                                    <col style="width:2%;"/>
-                                    <col style="width:37%;"/>
-                                    <col style="width:11%;"/>
-                                </colgroup>
-                                <thead>
-                                    <tr style="background-color:#4472C4; color:#ffffff;">
-                                        <th>Particulars (Income)</th>
-                                        <th class="text-end">Amount</th>
-                                        <th style="border-left:2px solid #fff;"></th>
-                                        <th>Particulars (Expenses)</th>
-                                        <th class="text-end">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="range(pnl_max)" t-as="idx">
-                                        <t t-set="il" t-value="income_lines[idx]  if idx &lt; len(income_lines)  else None"/>
-                                        <t t-set="el" t-value="expense_lines[idx] if idx &lt; len(expense_lines) else None"/>
-                                        <tr>
-                                            <td>
-                                                <t t-if="il">
-                                                    <t t-if="int(il.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span style="color:white;" t-esc="'..' * int(il.get('level', 0))"/>
-                                                    <span t-att-style="ps" t-esc="il.get('name')"/>
-                                                </t>
-                                            </td>
-                                            <td class="text-end">
-                                                <t t-if="il">
-                                                    <t t-if="int(il.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span t-att-style="ps" t-esc="il.get('balance')"
-                                                          t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                                </t>
-                                            </td>
-                                            <td style="border-left:2px solid #4472C4;"></td>
-                                            <td>
-                                                <t t-if="el">
-                                                    <t t-if="int(el.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span style="color:white;" t-esc="'..' * int(el.get('level', 0))"/>
-                                                    <span t-att-style="ps" t-esc="el.get('name')"/>
-                                                </t>
-                                            </td>
-                                            <td class="text-end">
-                                                <t t-if="el">
-                                                    <t t-if="int(el.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span t-att-style="ps" t-esc="el.get('balance')"
-                                                          t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                                </t>
-                                            </td>
-                                        </tr>
-                                    </t>
+                <!-- ═══════════════════════════════════
+                     TWO-COLUMN TABLES
+                     ═══════════════════════════════════ -->
+                <t t-if="not data['enable_filter'] and not data['debit_credit']">
 
-                                    <!-- Summary rows (Net Profit / Gross Profit etc.) -->
-                                    <t t-foreach="summary_lines" t-as="sl">
-                                        <tr style="border-top:2px solid #4472C4; background-color:#EBF0FA; font-weight:bold;">
-                                            <td><span t-esc="sl.get('name')"/></td>
-                                            <td class="text-end">
-                                                <span t-esc="sl.get('balance')"
-                                                      t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                            </td>
-                                            <td style="border-left:2px solid #4472C4;"></td>
-                                            <td></td><td></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
+                    <!-- ──────────────────────────────
+                         PROFIT AND LOSS
+                         ────────────────────────────── -->
+                    <t t-if="'loss' in data['account_report_id'][1].lower() or 'profit' in data['account_report_id'][1].lower()">
+
+                        <t t-set="income_lines" t-value="[]"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('account_type') in ('income','income_other','other_income')
+                                     or (_a.get('type') == 'report'
+                                         and ('income' in (_a.get('name') or '').lower()
+                                              or 'revenue' in (_a.get('name') or '').lower()
+                                              or 'sales' in (_a.get('name') or '').lower()))">
+                                <t t-set="income_lines" t-value="income_lines + [_a]"/>
+                            </t>
                         </t>
 
-                        <!-- ────────────────────────────────────
-                             BALANCE SHEET
-                             ──────────────────────────────────── -->
-                        <t t-elif="'balance' in data['account_report_id'][1].lower()">
-
-                            <!-- Only account-type rows go into columns -->
-                            <t t-set="asset_lines" t-value="[]"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('type') == 'account'
-                                         and _a.get('account_type') in ('asset_receivable','asset_bank','asset_cash',
-                                                                         'asset_current','asset_non_current',
-                                                                         'asset_prepayments','asset_fixed')">
-                                    <t t-set="asset_lines" t-value="asset_lines + [_a]"/>
-                                </t>
+                        <t t-set="expense_lines" t-value="[]"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('account_type') in ('expense','other_expense','depreciation',
+                                                                 'expense_direct_cost','expense_cost_of_revenue')
+                                     or (_a.get('type') == 'report'
+                                         and ('expense' in (_a.get('name') or '').lower()
+                                              or 'cost' in (_a.get('name') or '').lower()
+                                              or 'depreciation' in (_a.get('name') or '').lower()))">
+                                <t t-set="expense_lines" t-value="expense_lines + [_a]"/>
                             </t>
+                        </t>
 
-                            <t t-set="liability_lines" t-value="[]"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('type') == 'account'
-                                         and _a.get('account_type') in ('liability_payable','liability_credit_card',
-                                                                         'liability_current','liability_non_current',
-                                                                         'equity','equity_current_earnings')">
-                                    <t t-set="liability_lines" t-value="liability_lines + [_a]"/>
-                                </t>
+                        <t t-set="summary_lines" t-value="[]"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('type') == 'report'
+                                     and int(_a.get('level', 0)) &lt;= 2
+                                     and 'income' not in (_a.get('name') or '').lower()
+                                     and 'revenue' not in (_a.get('name') or '').lower()
+                                     and 'sales' not in (_a.get('name') or '').lower()
+                                     and 'expense' not in (_a.get('name') or '').lower()
+                                     and 'cost' not in (_a.get('name') or '').lower()
+                                     and 'depreciation' not in (_a.get('name') or '').lower()">
+                                <t t-set="summary_lines" t-value="summary_lines + [_a]"/>
                             </t>
+                        </t>
 
-                            <!-- Profit/Loss to report row -->
-                            <t t-set="bs_summary" t-value="[]"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('type') == 'report'
-                                         and ('profit' in (_a.get('name') or '').lower()
-                                              or 'loss' in (_a.get('name') or '').lower())">
-                                    <t t-set="bs_summary" t-value="bs_summary + [_a]"/>
-                                </t>
-                            </t>
+                        <t t-set="pnl_max" t-value="len(income_lines) if len(income_lines) >= len(expense_lines) else len(expense_lines)"/>
 
-                            <!-- Section totals from report-header rows -->
-                            <t t-set="asset_section_total" t-value="0.0"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('type') == 'report'
-                                         and 'asset' in (_a.get('name') or '').lower()
-                                         and int(_a.get('level', 0)) == 2">
-                                    <t t-set="asset_section_total" t-value="_a.get('balance', 0.0)"/>
-                                </t>
-                            </t>
-                            <t t-set="liability_section_total" t-value="0.0"/>
-                            <t t-foreach="get_account_lines" t-as="_a">
-                                <t t-if="_a.get('type') == 'report'
-                                         and ('liabilit' in (_a.get('name') or '').lower()
-                                              or 'equity' in (_a.get('name') or '').lower())
-                                         and int(_a.get('level', 0)) == 2">
-                                    <t t-set="liability_section_total" t-value="liability_section_total + _a.get('balance', 0.0)"/>
-                                </t>
-                            </t>
-
-                            <!-- Fallback: sum account rows -->
-                            <t t-set="liability_total" t-value="0.0"/>
-                            <t t-foreach="liability_lines" t-as="_l">
-                                <t t-set="liability_total" t-value="liability_total + _l.get('balance', 0.0)"/>
-                            </t>
-                            <t t-set="asset_total" t-value="0.0"/>
-                            <t t-foreach="asset_lines" t-as="_l">
-                                <t t-set="asset_total" t-value="asset_total + _l.get('balance', 0.0)"/>
-                            </t>
-
-                            <!-- Profit/Loss amount -->
-                            <t t-set="pnl_amount" t-value="0.0"/>
-                            <t t-foreach="bs_summary" t-as="_s">
-                                <t t-set="pnl_amount" t-value="pnl_amount + _s.get('balance', 0.0)"/>
-                            </t>
-
-                            <t t-set="show_liability_total" t-value="(liability_section_total if liability_section_total != 0.0 else liability_total) + pnl_amount"/>
-                            <t t-set="show_asset_total" t-value="asset_section_total if asset_section_total != 0.0 else asset_total"/>
-                            <t t-set="bs_max" t-value="len(liability_lines) if len(liability_lines) >= len(asset_lines) else len(asset_lines)"/>
-
-                            <table class="table table-sm table-reports"
-                                   style="font-size:11px; table-layout:fixed; width:100%;">
-                                <colgroup>
-                                    <col style="width:10%;"/>
-                                    <col style="width:25%;"/>
-                                    <col style="width:12%;"/>
-                                    <col style="width:3%;"/>
-                                    <col style="width:10%;"/>
-                                    <col style="width:25%;"/>
-                                    <col style="width:15%;"/>
-                                </colgroup>
-                                <thead>
-                                    <tr style="background-color:#4472C4; color:#ffffff;">
-                                        <th>Head Code</th>
-                                        <th>Liability</th>
-                                        <th class="text-end">Amount</th>
-                                        <th style="border-left:2px solid #fff;"></th>
-                                        <th>Head Code</th>
-                                        <th>Asset</th>
-                                        <th class="text-end">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="range(bs_max)" t-as="idx">
-                                        <t t-set="ll" t-value="liability_lines[idx] if idx &lt; len(liability_lines) else None"/>
-                                        <t t-set="al" t-value="asset_lines[idx]     if idx &lt; len(asset_lines)     else None"/>
-                                        <tr>
-                                            <td>
-                                                <t t-if="ll and ll.get('type') == 'account'">
-                                                    <span t-esc="(ll.get('name') or '').split(' ')[0]"/>
-                                                </t>
-                                            </td>
-                                            <td>
-                                                <t t-if="ll">
-                                                    <t t-if="int(ll.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span style="color:white;" t-esc="'..' * int(ll.get('level', 0))"/>
-                                                    <t t-if="ll.get('type') == 'account'">
-                                                        <span t-att-style="ps" t-esc="' '.join((ll.get('name') or '').split(' ')[1:])"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span t-att-style="ps" t-esc="ll.get('name')"/>
-                                                    </t>
-                                                </t>
-                                            </td>
-                                            <td class="text-end">
-                                                <t t-if="ll">
-                                                    <t t-if="int(ll.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span t-att-style="ps" t-esc="ll.get('balance')"
-                                                          t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                                </t>
-                                            </td>
-                                            <td style="border-left:2px solid #4472C4;"></td>
-                                            <td>
-                                                <t t-if="al and al.get('type') == 'account'">
-                                                    <span t-esc="(al.get('name') or '').split(' ')[0]"/>
-                                                </t>
-                                            </td>
-                                            <td>
-                                                <t t-if="al">
-                                                    <t t-if="int(al.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span style="color:white;" t-esc="'..' * int(al.get('level', 0))"/>
-                                                    <t t-if="al.get('type') == 'account'">
-                                                        <span t-att-style="ps" t-esc="' '.join((al.get('name') or '').split(' ')[1:])"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span t-att-style="ps" t-esc="al.get('name')"/>
-                                                    </t>
-                                                </t>
-                                            </td>
-                                            <td class="text-end">
-                                                <t t-if="al">
-                                                    <t t-if="int(al.get('level', 0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
-                                                    <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
-                                                    <span t-att-style="ps" t-esc="al.get('balance')"
-                                                          t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                                </t>
-                                            </td>
-                                        </tr>
-                                    </t>
-
-                                    <!-- Profit (Loss) to report row on liability side -->
-                                    <t t-foreach="bs_summary" t-as="sl">
-                                        <tr style="font-weight:bold; background-color:#f5f5f5;">
-                                            <td></td>
-                                            <td><span t-esc="sl.get('name')"/></td>
-                                            <td class="text-end">
-                                                <span t-esc="sl.get('balance')"
-                                                      t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                            </td>
-                                            <td style="border-left:2px solid #4472C4;"></td>
-                                            <td colspan="3"></td>
-                                        </tr>
-                                    </t>
-
-                                    <!-- Grand totals -->
-                                    <tr style="border-top:2px solid #4472C4; background-color:#D6E4F0; font-weight:bold;">
-                                        <td colspan="2">Total Liabilities &amp; Equity</td>
+                        <table class="table table-sm table-reports"
+                               style="font-size:11px; table-layout:fixed; width:100%;">
+                            <colgroup>
+                                <col style="width:37%;"/><col style="width:13%;"/>
+                                <col style="width:2%;"/>
+                                <col style="width:37%;"/><col style="width:11%;"/>
+                            </colgroup>
+                            <thead>
+                                <tr style="background-color:#4472C4; color:#ffffff;">
+                                    <th>Particulars (Income)</th>
+                                    <th class="text-end">Amount</th>
+                                    <th style="border-left:2px solid #fff;"></th>
+                                    <th>Particulars (Expenses)</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="range(pnl_max)" t-as="idx">
+                                    <t t-set="il" t-value="income_lines[idx]  if idx &lt; len(income_lines)  else None"/>
+                                    <t t-set="el" t-value="expense_lines[idx] if idx &lt; len(expense_lines) else None"/>
+                                    <tr>
+                                        <td>
+                                            <t t-if="il">
+                                                <t t-if="int(il.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span style="color:white;" t-esc="'..' * int(il.get('level',0))"/>
+                                                <span t-att-style="ps" t-esc="il.get('name')"/>
+                                            </t>
+                                        </td>
                                         <td class="text-end">
-                                            <span t-esc="show_liability_total"
-                                                  t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
+                                            <t t-if="il">
+                                                <t t-if="int(il.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span t-att-style="ps" t-esc="il.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
+                                            </t>
                                         </td>
                                         <td style="border-left:2px solid #4472C4;"></td>
-                                        <td colspan="2">Total Assets</td>
+                                        <td>
+                                            <t t-if="el">
+                                                <t t-if="int(el.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span style="color:white;" t-esc="'..' * int(el.get('level',0))"/>
+                                                <span t-att-style="ps" t-esc="el.get('name')"/>
+                                            </t>
+                                        </td>
                                         <td class="text-end">
-                                            <span t-esc="show_asset_total"
-                                                  t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
+                                            <t t-if="el">
+                                                <t t-if="int(el.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span t-att-style="ps" t-esc="el.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
+                                            </t>
                                         </td>
                                     </tr>
-                                </tbody>
-                            </table>
+                                </t>
+                                <t t-foreach="summary_lines" t-as="sl">
+                                    <tr style="border-top:2px solid #4472C4; background-color:#EBF0FA; font-weight:bold;">
+                                        <td><span t-esc="sl.get('name')"/></td>
+                                        <td class="text-end"><span t-esc="sl.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                        <td style="border-left:2px solid #4472C4;"></td>
+                                        <td></td><td></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- ──────────────────────────────
+                         BALANCE SHEET
+                         ────────────────────────────── -->
+                    <t t-elif="'balance' in data['account_report_id'][1].lower()">
+
+                        <t t-set="asset_lines" t-value="[]"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('type') == 'account'
+                                     and _a.get('account_type') in ('asset_receivable','asset_bank','asset_cash',
+                                                                     'asset_current','asset_non_current',
+                                                                     'asset_prepayments','asset_fixed')">
+                                <t t-set="asset_lines" t-value="asset_lines + [_a]"/>
+                            </t>
                         </t>
 
-                        <!-- ────────────────────────────────────
-                             FALLBACK – any other report
-                             ──────────────────────────────────── -->
-                        <t t-else="">
-                            <table class="table table-sm table-reports">
-                                <thead>
+                        <t t-set="liability_lines" t-value="[]"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('type') == 'account'
+                                     and _a.get('account_type') in ('liability_payable','liability_credit_card',
+                                                                     'liability_current','liability_non_current',
+                                                                     'equity','equity_current_earnings')">
+                                <t t-set="liability_lines" t-value="liability_lines + [_a]"/>
+                            </t>
+                        </t>
+
+                        <t t-set="bs_summary" t-value="[]"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('type') == 'report'
+                                     and ('profit' in (_a.get('name') or '').lower()
+                                          or 'loss' in (_a.get('name') or '').lower())">
+                                <t t-set="bs_summary" t-value="bs_summary + [_a]"/>
+                            </t>
+                        </t>
+
+                        <t t-set="asset_section_total" t-value="0.0"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('type') == 'report' and 'asset' in (_a.get('name') or '').lower() and int(_a.get('level',0)) == 2">
+                                <t t-set="asset_section_total" t-value="_a.get('balance', 0.0)"/>
+                            </t>
+                        </t>
+                        <t t-set="liability_section_total" t-value="0.0"/>
+                        <t t-foreach="get_account_lines" t-as="_a">
+                            <t t-if="_a.get('type') == 'report'
+                                     and ('liabilit' in (_a.get('name') or '').lower() or 'equity' in (_a.get('name') or '').lower())
+                                     and int(_a.get('level',0)) == 2">
+                                <t t-set="liability_section_total" t-value="liability_section_total + _a.get('balance', 0.0)"/>
+                            </t>
+                        </t>
+
+                        <t t-set="liability_total" t-value="0.0"/>
+                        <t t-foreach="liability_lines" t-as="_l">
+                            <t t-set="liability_total" t-value="liability_total + _l.get('balance', 0.0)"/>
+                        </t>
+                        <t t-set="asset_total" t-value="0.0"/>
+                        <t t-foreach="asset_lines" t-as="_l">
+                            <t t-set="asset_total" t-value="asset_total + _l.get('balance', 0.0)"/>
+                        </t>
+                        <t t-set="pnl_amount" t-value="0.0"/>
+                        <t t-foreach="bs_summary" t-as="_s">
+                            <t t-set="pnl_amount" t-value="pnl_amount + _s.get('balance', 0.0)"/>
+                        </t>
+                        <t t-set="show_liability_total" t-value="(liability_section_total if liability_section_total != 0.0 else liability_total) + pnl_amount"/>
+                        <t t-set="show_asset_total" t-value="asset_section_total if asset_section_total != 0.0 else asset_total"/>
+                        <t t-set="bs_max" t-value="len(liability_lines) if len(liability_lines) >= len(asset_lines) else len(asset_lines)"/>
+
+                        <table class="table table-sm table-reports"
+                               style="font-size:11px; table-layout:fixed; width:100%;">
+                            <colgroup>
+                                <col style="width:10%;"/><col style="width:25%;"/><col style="width:12%;"/>
+                                <col style="width:3%;"/>
+                                <col style="width:10%;"/><col style="width:25%;"/><col style="width:15%;"/>
+                            </colgroup>
+                            <thead>
+                                <tr style="background-color:#4472C4; color:#ffffff;">
+                                    <th>Head Code</th><th>Liability</th><th class="text-end">Amount</th>
+                                    <th style="border-left:2px solid #fff;"></th>
+                                    <th>Head Code</th><th>Asset</th><th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="range(bs_max)" t-as="idx">
+                                    <t t-set="ll" t-value="liability_lines[idx] if idx &lt; len(liability_lines) else None"/>
+                                    <t t-set="al" t-value="asset_lines[idx]     if idx &lt; len(asset_lines)     else None"/>
                                     <tr>
-                                        <th>Name</th>
-                                        <th class="text-end">Amount</th>
+                                        <td><t t-if="ll and ll.get('type')=='account'"><span t-esc="(ll.get('name') or '').split(' ')[0]"/></t></td>
+                                        <td>
+                                            <t t-if="ll">
+                                                <t t-if="int(ll.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span style="color:white;" t-esc="'..' * int(ll.get('level',0))"/>
+                                                <t t-if="ll.get('type')=='account'"><span t-att-style="ps" t-esc="' '.join((ll.get('name') or '').split(' ')[1:])"/></t>
+                                                <t t-else=""><span t-att-style="ps" t-esc="ll.get('name')"/></t>
+                                            </t>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-if="ll">
+                                                <t t-if="int(ll.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span t-att-style="ps" t-esc="ll.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
+                                            </t>
+                                        </td>
+                                        <td style="border-left:2px solid #4472C4;"></td>
+                                        <td><t t-if="al and al.get('type')=='account'"><span t-esc="(al.get('name') or '').split(' ')[0]"/></t></td>
+                                        <td>
+                                            <t t-if="al">
+                                                <t t-if="int(al.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span style="color:white;" t-esc="'..' * int(al.get('level',0))"/>
+                                                <t t-if="al.get('type')=='account'"><span t-att-style="ps" t-esc="' '.join((al.get('name') or '').split(' ')[1:])"/></t>
+                                                <t t-else=""><span t-att-style="ps" t-esc="al.get('name')"/></t>
+                                            </t>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-if="al">
+                                                <t t-if="int(al.get('level',0)) &gt; 3"><t t-set="ps" t-value="'font-weight:normal;'"/></t>
+                                                <t t-else=""><t t-set="ps" t-value="'font-weight:bold;'"/></t>
+                                                <span t-att-style="ps" t-esc="al.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
+                                            </t>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="get_account_lines" t-as="a">
-                                        <t t-if="a['level'] != 0">
-                                            <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: normal;'"/></t>
-                                            <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: bold;'"/></t>
-                                            <td>
-                                                <span style="color:white;" t-esc="'..' * int(a.get('level', 0))"/>
-                                                <span t-att-style="style" t-esc="a.get('name')"/>
-                                            </td>
-                                            <td class="text-end">
-                                                <span t-att-style="style" t-esc="a.get('balance')"
-                                                      t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/>
-                                            </td>
-                                        </t>
+                                </t>
+                                <t t-foreach="bs_summary" t-as="sl">
+                                    <tr style="font-weight:bold; background-color:#f5f5f5;">
+                                        <td></td>
+                                        <td><span t-esc="sl.get('name')"/></td>
+                                        <td class="text-end"><span t-esc="sl.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                        <td style="border-left:2px solid #4472C4;"></td>
+                                        <td colspan="3"></td>
                                     </tr>
-                                </tbody>
-                            </table>
-                        </t>
+                                </t>
+                                <tr style="border-top:2px solid #4472C4; background-color:#D6E4F0; font-weight:bold;">
+                                    <td colspan="2">Total Liabilities &amp; Equity</td>
+                                    <td class="text-end"><span t-esc="show_liability_total" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                    <td style="border-left:2px solid #4472C4;"></td>
+                                    <td colspan="2">Total Assets</td>
+                                    <td class="text-end"><span t-esc="show_asset_total" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
 
-                    </t><!-- end t-if not enable_filter and not debit_credit -->
+                    <!-- ──────────────────────────────
+                         FALLBACK
+                         ────────────────────────────── -->
+                    <t t-else="">
+                        <table class="table table-sm table-reports">
+                            <thead><tr><th>Name</th><th class="text-end">Amount</th></tr></thead>
+                            <tbody>
+                                <tr t-foreach="get_account_lines" t-as="a">
+                                    <t t-if="a['level'] != 0">
+                                        <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight:normal;'"/></t>
+                                        <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight:bold;'"/></t>
+                                        <td><span style="color:white;" t-esc="'..' * int(a.get('level',0))"/><span t-att-style="style" t-esc="a.get('name')"/></td>
+                                        <td class="text-end"><span t-att-style="style" t-esc="a.get('balance')" t-options="{'widget':'monetary','display_currency':res_company.currency_id}"/></td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
 
-                </div>
-            </t>
-        </t>
+                </t><!-- end not enable_filter and not debit_credit -->
+
+            </div>
+        </xpath>
+
     </template>
 </odoo>
 

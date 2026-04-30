@@ -58,9 +58,9 @@
                                     <t t-if="int(a.get('level')) &gt; 3"><t t-set="s" t-value="'normal'"/></t>
                                     <t t-else=""><t t-set="s" t-value="'bold'"/></t>
                                     <td><span style="color:white;" t-esc="'..' * int(a.get('level',0))"/><span t-att-class="s" t-esc="a.get('name')"/></td>
-                                    <td class="text-end"><span t-att-class="s" t-esc="formatLang(a.get('debit',0.0), currency_obj=res_company.currency_id)"/></td>
-                                    <td class="text-end"><span t-att-class="s" t-esc="formatLang(a.get('credit',0.0), currency_obj=res_company.currency_id)"/></td>
-                                    <td class="text-end"><span t-att-class="s" t-esc="formatLang(a.get('balance',0.0), currency_obj=res_company.currency_id)"/></td>
+                                    <td class="text-end"><span t-att-class="s" t-esc="('%.2f ' % a.get('debit',0.0)) + res_company.currency_id.name"/></td>
+                                    <td class="text-end"><span t-att-class="s" t-esc="('%.2f ' % a.get('credit',0.0)) + res_company.currency_id.name"/></td>
+                                    <td class="text-end"><span t-att-class="s" t-esc="('%.2f ' % a.get('balance',0.0)) + res_company.currency_id.name"/></td>
                                 </t>
                             </tr>
                         </tbody>
@@ -77,8 +77,8 @@
                                     <t t-if="int(a.get('level')) &gt; 3"><t t-set="s" t-value="'normal'"/></t>
                                     <t t-else=""><t t-set="s" t-value="'bold'"/></t>
                                     <td><span style="color:white;" t-esc="'..'"/><span t-att-class="s" t-esc="a.get('name')"/></td>
-                                    <td class="text-end"><span t-att-class="s" t-esc="formatLang(a.get('balance',0.0), currency_obj=res_company.currency_id)"/></td>
-                                    <td class="text-end"><span t-att-class="s" t-esc="formatLang(a.get('balance_cmp',0.0), currency_obj=res_company.currency_id)"/></td>
+                                    <td class="text-end"><span t-att-class="s" t-esc="('%.2f ' % a.get('balance',0.0)) + res_company.currency_id.name"/></td>
+                                    <td class="text-end"><span t-att-class="s" t-esc="('%.2f ' % a.get('balance_cmp',0.0)) + res_company.currency_id.name"/></td>
                                 </t>
                             </tr>
                         </tbody>
@@ -160,7 +160,7 @@
                                             <t t-if="il">
                                                 <t t-if="int(il.get('level',0)) &gt; 3"><t t-set="ps" t-value="'normal'"/></t>
                                                 <t t-else=""><t t-set="ps" t-value="'bold'"/></t>
-                                                <span t-att-class="ps" t-esc="formatLang(il.get('balance',0.0), currency_obj=res_company.currency_id)"/>
+                                                <span t-att-class="ps" t-esc="('%.2f ' % il.get('balance',0.0)) + res_company.currency_id.name"/>
                                             </t>
                                         </td>
                                         <td class="divider"></td>
@@ -176,7 +176,7 @@
                                             <t t-if="el">
                                                 <t t-if="int(el.get('level',0)) &gt; 3"><t t-set="ps" t-value="'normal'"/></t>
                                                 <t t-else=""><t t-set="ps" t-value="'bold'"/></t>
-                                                <span t-att-class="ps" t-esc="formatLang(el.get('balance',0.0), currency_obj=res_company.currency_id)"/>
+                                                <span t-att-class="ps" t-esc="('%.2f ' % el.get('balance',0.0)) + res_company.currency_id.name"/>
                                             </t>
                                         </td>
                                     </tr>
@@ -184,7 +184,7 @@
                                 <t t-foreach="summary_lines" t-as="sl">
                                     <tr class="summary-row">
                                         <td><span t-esc="sl.get('name')"/></td>
-                                        <td class="text-end"><span t-esc="formatLang(sl.get('balance',0.0), currency_obj=res_company.currency_id)"/></td>
+                                        <td class="text-end"><span t-esc="('%.2f ' % sl.get('balance',0.0)) + res_company.currency_id.name"/></td>
                                         <td class="divider"></td>
                                         <td></td><td></td>
                                     </tr>
@@ -287,7 +287,7 @@
                                             <t t-if="ll">
                                                 <t t-if="int(ll.get('level',0)) &gt; 3"><t t-set="ps" t-value="'normal'"/></t>
                                                 <t t-else=""><t t-set="ps" t-value="'bold'"/></t>
-                                                <span t-att-class="ps" t-esc="formatLang(ll.get('balance',0.0), currency_obj=res_company.currency_id)"/>
+                                                <span t-att-class="ps" t-esc="('%.2f ' % ll.get('balance',0.0)) + res_company.currency_id.name"/>
                                             </t>
                                         </td>
                                         <td class="divider"></td>
@@ -305,7 +305,7 @@
                                             <t t-if="al">
                                                 <t t-if="int(al.get('level',0)) &gt; 3"><t t-set="ps" t-value="'normal'"/></t>
                                                 <t t-else=""><t t-set="ps" t-value="'bold'"/></t>
-                                                <span t-att-class="ps" t-esc="formatLang(al.get('balance',0.0), currency_obj=res_company.currency_id)"/>
+                                                <span t-att-class="ps" t-esc="('%.2f ' % al.get('balance',0.0)) + res_company.currency_id.name"/>
                                             </t>
                                         </td>
                                     </tr>
@@ -314,17 +314,17 @@
                                     <tr class="pnl-row">
                                         <td></td>
                                         <td><span t-esc="sl.get('name')"/></td>
-                                        <td class="text-end"><span t-esc="formatLang(sl.get('balance',0.0), currency_obj=res_company.currency_id)"/></td>
+                                        <td class="text-end"><span t-esc="('%.2f ' % sl.get('balance',0.0)) + res_company.currency_id.name"/></td>
                                         <td class="divider"></td>
                                         <td colspan="3"></td>
                                     </tr>
                                 </t>
                                 <tr class="total-row">
                                     <td colspan="2">Total Liabilities &amp; Equity</td>
-                                    <td class="text-end"><span t-esc="formatLang(show_liability_total, currency_obj=res_company.currency_id)"/></td>
+                                    <td class="text-end"><span t-esc="('%.2f ' % show_liability_total) + res_company.currency_id.name"/></td>
                                     <td class="divider"></td>
                                     <td colspan="2">Total Assets</td>
-                                    <td class="text-end"><span t-esc="formatLang(show_asset_total, currency_obj=res_company.currency_id)"/></td>
+                                    <td class="text-end"><span t-esc="('%.2f ' % show_asset_total) + res_company.currency_id.name"/></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -340,7 +340,7 @@
                                         <t t-if="int(a.get('level')) &gt; 3"><t t-set="s" t-value="'normal'"/></t>
                                         <t t-if="not int(a.get('level')) &gt; 3"><t t-set="s" t-value="'bold'"/></t>
                                         <td><span style="color:white;" t-esc="'..' * int(a.get('level',0))"/><span t-att-class="s" t-esc="a.get('name')"/></td>
-                                        <td class="text-end"><span t-att-class="s" t-esc="formatLang(a.get('balance',0.0), currency_obj=res_company.currency_id)"/></td>
+                                        <td class="text-end"><span t-att-class="s" t-esc="('%.2f ' % a.get('balance',0.0)) + res_company.currency_id.name"/></td>
                                     </t>
                                 </tr>
                             </tbody>

@@ -190,39 +190,58 @@
                  ════════════════════════════════════ -->
             <t t-elif="'balance' in data['account_report_id'][1].lower()">
 
+                <!-- Only account-type rows (no report headers) go into the columns -->
                 <t t-set="asset_lines" t-value="[]"/>
                 <t t-foreach="get_account_lines" t-as="_a">
-                    <t t-if="_a.get('account_type') in ('asset_receivable','asset_bank','asset_cash',
-                                                         'asset_current','asset_non_current',
-                                                         'asset_prepayments','asset_fixed')
-                             or (_a.get('type') == 'report'
-                                 and 'asset' in (_a.get('name') or '').lower())">
+                    <t t-if="_a.get('type') == 'account'
+                             and _a.get('account_type') in ('asset_receivable','asset_bank','asset_cash',
+                                                             'asset_current','asset_non_current',
+                                                             'asset_prepayments','asset_fixed')">
                         <t t-set="asset_lines" t-value="asset_lines + [_a]"/>
                     </t>
                 </t>
 
                 <t t-set="liability_lines" t-value="[]"/>
                 <t t-foreach="get_account_lines" t-as="_a">
-                    <t t-if="_a.get('account_type') in ('liability_payable','liability_credit_card',
-                                                         'liability_current','liability_non_current',
-                                                         'equity','equity_current_earnings')
-                             or (_a.get('type') == 'report'
-                                 and ('liabilit' in (_a.get('name') or '').lower()
-                                      or 'equity' in (_a.get('name') or '').lower()
-                                      or 'capital' in (_a.get('name') or '').lower()))">
+                    <t t-if="_a.get('type') == 'account'
+                             and _a.get('account_type') in ('liability_payable','liability_credit_card',
+                                                             'liability_current','liability_non_current',
+                                                             'equity','equity_current_earnings')">
                         <t t-set="liability_lines" t-value="liability_lines + [_a]"/>
                     </t>
                 </t>
 
-                <!-- Top-level summary rows (level <= 1) -->
+                <!-- Profit/Loss to report row only (level=1, not the Balance Sheet total itself) -->
                 <t t-set="bs_summary" t-value="[]"/>
                 <t t-foreach="get_account_lines" t-as="_a">
-                    <t t-if="_a.get('type') == 'report' and int(_a.get('level', 0)) &lt;= 1">
+                    <t t-if="_a.get('type') == 'report'
+                             and int(_a.get('level', 0)) == 1
+                             and ('profit' in (_a.get('name') or '').lower()
+                                  or 'loss' in (_a.get('name') or '').lower())">
                         <t t-set="bs_summary" t-value="bs_summary + [_a]"/>
                     </t>
                 </t>
 
-                <!-- Totals -->
+                <!-- Section totals from report-header rows (type=report, level=2) -->
+                <t t-set="asset_section_total" t-value="0.0"/>
+                <t t-foreach="get_account_lines" t-as="_a">
+                    <t t-if="_a.get('type') == 'report'
+                             and 'asset' in (_a.get('name') or '').lower()
+                             and int(_a.get('level', 0)) == 2">
+                        <t t-set="asset_section_total" t-value="_a.get('balance', 0.0)"/>
+                    </t>
+                </t>
+                <t t-set="liability_section_total" t-value="0.0"/>
+                <t t-foreach="get_account_lines" t-as="_a">
+                    <t t-if="_a.get('type') == 'report'
+                             and ('liabilit' in (_a.get('name') or '').lower()
+                                  or 'equity' in (_a.get('name') or '').lower())
+                             and int(_a.get('level', 0)) == 2">
+                        <t t-set="liability_section_total" t-value="liability_section_total + _a.get('balance', 0.0)"/>
+                    </t>
+                </t>
+
+                <!-- Fallback: sum account rows if section totals are zero -->
                 <t t-set="liability_total" t-value="0.0"/>
                 <t t-foreach="liability_lines" t-as="_l">
                     <t t-set="liability_total" t-value="liability_total + _l.get('balance', 0.0)"/>
@@ -231,6 +250,8 @@
                 <t t-foreach="asset_lines" t-as="_l">
                     <t t-set="asset_total" t-value="asset_total + _l.get('balance', 0.0)"/>
                 </t>
+                <t t-set="show_liability_total" t-value="liability_section_total if liability_section_total != 0.0 else liability_total"/>
+                <t t-set="show_asset_total" t-value="asset_section_total if asset_section_total != 0.0 else asset_total"/>
 
                 <t t-set="bs_max" t-value="len(liability_lines) if len(liability_lines) >= len(asset_lines) else len(asset_lines)"/>
 

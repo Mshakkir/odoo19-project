@@ -10,6 +10,11 @@ from .warehouse_analytic_utils import (
 _logger = logging.getLogger(__name__)
 
 
+def _has_model(env, model_name):
+    """Safely check if a model is installed/available in the current environment."""
+    return model_name in env.registry
+
+
 def _match_warehouse_by_name(warehouses, name_to_match):
     """
     Find best-matching warehouse by word-overlap scoring.
@@ -35,7 +40,9 @@ def _match_warehouse_by_name(warehouses, name_to_match):
         score = len(common) + (1 if code_match else 0)
         unmatched = len(wh_words - target_words)
 
-        if score > best_score or (score == best_score and score > 0 and unmatched < best_unmatched):
+        if score > best_score or (
+            score == best_score and score > 0 and unmatched < best_unmatched
+        ):
             best_score = score
             best_unmatched = unmatched
             best_wh = wh
@@ -50,31 +57,22 @@ def _resolve_analytic_for_statement_line(st_line):
     Priority order — designed to avoid cross-branch contamination:
 
     1. Linked payment record (PBNK1/xxxx) → creator's warehouse
-       This is the most reliable for direct customer payments matched to a
-       bank statement. The payment was created by a specific branch user.
+    2. POS session name → warehouse name/code word overlap  [POS-safe]
+    3. Journal name → warehouse name/code word overlap
+       (generic "Bank" journal will NOT match — intentional)
+    4. Session → config → picking_type → warehouse             [POS-safe]
+    5. Journal → POS payment method → config → warehouse       [POS-safe]
+    6. Current user's warehouse (last resort)
 
-    2. POS session name match → warehouse name/code word overlap
-       e.g. "FON-STORE KONDOTTY/00020" matches KONDOTTY warehouse.
-
-    3. Journal name match → warehouse name/code word overlap
-       e.g. "Cash KDTY" matches warehouse with code "KDTY".
-       NOTE: A generic "Bank" journal will NOT match — intentional.
-
-    4. Session → config → picking_type → warehouse (structural link)
-
-    5. Journal → POS payment method → config → picking_type → warehouse
-
-    6. Current user's warehouse (last resort — only for truly unlinked entries)
+    All POS model accesses are guarded by _has_model() so this works
+    even when the point_of_sale module is not installed.
     """
     company_id = st_line.company_id.id
     env = st_line.env
 
     # -----------------------------------------------------------------
     # Priority 1: Linked payment → creator's warehouse
-    # This handles: bank statement line reconciled with PBNK1/xxxx
     # -----------------------------------------------------------------
-    # account.bank.statement.line may be linked to a payment via
-    # payment_id (Odoo 16+) or via reconciled move lines
     payment = getattr(st_line, 'payment_id', False)
     if payment:
         analytic = get_analytic_from_payment(payment)
@@ -85,7 +83,7 @@ def _resolve_analytic_for_statement_line(st_line):
             )
             return analytic
 
-    # Also check reconciled move lines to find linked payment
+    # Also check reconciled move lines to find a linked payment
     if st_line.move_id:
         for line in st_line.move_id.line_ids:
             for partial in (line.matched_debit_ids | line.matched_credit_ids):
@@ -104,19 +102,17 @@ def _resolve_analytic_for_statement_line(st_line):
                         )
                         return analytic
 
-    # -----------------------------------------------------------------
-    # Warehouses with analytic accounts for name-matching below
-    # -----------------------------------------------------------------
+    # Warehouses with analytic accounts for name-matching
     warehouses = env['stock.warehouse'].search([
         ('analytic_account_id', '!=', False),
         ('company_id', '=', company_id),
     ])
 
     # -----------------------------------------------------------------
-    # Priority 2: POS session name match
+    # Priority 2: POS session name match  [POS-safe]
     # -----------------------------------------------------------------
     session = getattr(st_line, 'pos_session_id', False)
-    if session:
+    if session and _has_model(env, 'pos.session'):
         wh = _match_warehouse_by_name(warehouses, session.name)
         if wh:
             _logger.debug(
@@ -127,8 +123,8 @@ def _resolve_analytic_for_statement_line(st_line):
 
     # -----------------------------------------------------------------
     # Priority 3: Journal name match
-    # Generic journals like "Bank" intentionally won't match — good.
-    # Shop-specific journals like "Cash KDTY", "Card CHLR" will match.
+    # Generic "Bank" / "Cash" won't match — shop journals like
+    # "Cash KDTY" or "Card CHLR" will match correctly.
     # -----------------------------------------------------------------
     journal = getattr(st_line, 'journal_id', False)
     if journal:
@@ -141,9 +137,9 @@ def _resolve_analytic_for_statement_line(st_line):
             return wh.analytic_account_id
 
     # -----------------------------------------------------------------
-    # Priority 4: session → config → picking_type → warehouse
+    # Priority 4: session → config → picking_type → warehouse  [POS-safe]
     # -----------------------------------------------------------------
-    if session:
+    if session and _has_model(env, 'pos.config'):
         config = getattr(session, 'config_id', False)
         if config:
             picking_type = getattr(config, 'picking_type_id', False)
@@ -157,13 +153,16 @@ def _resolve_analytic_for_statement_line(st_line):
 
     # -----------------------------------------------------------------
     # Priority 5: journal → POS payment method → config → warehouse
+    # Guarded: only runs if pos.payment.method model exists
     # -----------------------------------------------------------------
-    if journal:
+    if journal and _has_model(env, 'pos.payment.method'):
         pms = env['pos.payment.method'].search([
             ('journal_id', '=', journal.id),
             ('company_id', '=', company_id),
         ])
         for pm in pms:
+            if not _has_model(env, 'pos.config'):
+                break
             configs = env['pos.config'].search([
                 ('payment_method_ids', 'in', pm.ids),
                 ('company_id', '=', company_id),
@@ -180,8 +179,6 @@ def _resolve_analytic_for_statement_line(st_line):
 
     # -----------------------------------------------------------------
     # Priority 6: current user's warehouse (last resort)
-    # For a generic "Bank" journal with no payment link and no session,
-    # we have no other information — use whoever is logged in.
     # -----------------------------------------------------------------
     wh = get_user_warehouse(st_line.env.user)
     if wh and getattr(wh, 'analytic_account_id', False):
